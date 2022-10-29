@@ -1,0 +1,12 @@
+{
+  "name": "ngx-img-zoom-viewer",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^14.2.0",
+    "@angular/core": "^14.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "author": {"name": "Vaibhav Dubay", "email": "sirvaibhavdubay@gmail.com", "url": "https://github.com/vaibhavdubay"}
+}
