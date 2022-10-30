@@ -107,7 +107,7 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
 
   @HostListener('mouseleave', ['$event'])
   private onMouseLeave(e: MouseEvent) {
-    if(this.cursorSize.width < 50) return
+    if(this.cursorSize.width < 50 ) return
     this.renderer.removeChild(this.host, this.cursor);
     this.renderer.removeChild(this.host, this.img_preview);
   }
@@ -208,7 +208,6 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
   }
 
   private createImage() {
-    console.log(this._src, this.defaultConfigs);
     this.host.innerHTML = '';
     this.image = this.renderer.createElement('img');
     this.renderer.setAttribute(this.image, 'src', this._src);
