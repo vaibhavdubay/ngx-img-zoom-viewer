@@ -1,12 +1,43 @@
 {
   "name": "ngx-img-zoom-viewer",
-  "version": "0.0.1",
+  "version": "0.14.02",
   "peerDependencies": {
     "@angular/common": "^14.2.0",
     "@angular/core": "^14.2.0"
   },
+  "scripts": {
+    "build": "tsc -p tsconfig.schematics.json",
+    "postbuild": "copyfiles schematics/collection.json ../../dist/ngx-img-zoom-viewer"
+  },
+  "ng-add": {
+    "save": "true"
+  },
+  "schematics": "./schematics/collection.json",
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "author": {"name": "Vaibhav Dubay", "email": "sirvaibhavdubay@gmail.com", "url": "https://github.com/vaibhavdubay"}
+  "author": {
+    "name": "Vaibhav Dubay",
+    "email": "sirvaibhavdubay@gmail.com",
+    "url": "https://github.com/vaibhavdubay"
+  },
+  "description": "The NGX IMG Zoom Viewer is a Angular library that can help to create a magnified preview of any image in any kind of angular app",
+  "keywords": [
+    "image",
+    "img",
+    "picture",
+    "zoom",
+    "megnified",
+    "bigger",
+    "preview",
+    "img Zoom Viewer",
+    "ngx",
+    "angular",
+    "npm",
+    "ngx img zoom viewer",
+    "NGX IMG Zoom Viewer"
+  ],
+  "displayName": "NGX IMG Zoom Viewer",
+  "module": "NGXImgZoomViewerModule",
+  "license": "GNU"
 }

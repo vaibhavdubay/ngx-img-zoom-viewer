@@ -51,7 +51,7 @@ we can start using it by just adding
 </br>
 ## In template
 <pre>
-  &ltngx-img-zoomviewer [src]=&quoturl&quot &gt &lt/ngx-img-zoomviewer&gt
+  &lt;ngx-img-zoom-viewer [src]=&quot;url&quot; &gt; &lt;/ngx-img-zoom-viewer&gt;
 </pre>
 
 ## In class
@@ -63,7 +63,7 @@ we can start using it by just adding
 
 ---
 
-> ### GNU License
+[GNU](https://github.com/vaibhavdubay/ngx-img-zoom-viewer/blob/main/LICENSE)
 
 ---
 ## Questions

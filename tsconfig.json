@@ -3,7 +3,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "NGX-img-ZoomViewer": [
+      "ngx-img-zoom-viewer": [
         "dist/ngx-img-zoom-viewer"
       ]
     },

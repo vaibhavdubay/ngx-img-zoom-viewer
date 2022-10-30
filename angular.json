@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "NGX-img-ZoomViewer": {
+    "ngx-img-zoom-viewer": {
       "projectType": "library",
       "root": "projects/ngx-img-zoom-viewer",
       "sourceRoot": "projects/ngx-img-zoom-viewer/src",

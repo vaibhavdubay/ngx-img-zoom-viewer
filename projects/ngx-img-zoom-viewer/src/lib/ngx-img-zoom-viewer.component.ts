@@ -1,78 +1,61 @@
-import { Component, ElementRef, HostListener, Input, OnInit, Renderer2 } from '@angular/core';
-
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnInit,
+  Renderer2,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 
 export interface ZoomviewerConfig {
   imgHeight?: number;
   megnification?: number;
   priviewBoxSize?: {
     height?: number;
-    width?: number;
   };
 }
 
 @Component({
-  selector: 'ngx-img-zoomviewer',
+  selector: 'ngx-img-zoom-viewer',
   template: ``,
   styles: [
     `
-    .image_container {
-      position:relative;
-      display: inline-block;
-    }
+      .image_container {
+        position: relative;
+        display: inline-block;
+      }
 
-    .cursor {
-      position: absolute;
-      background-color: rgba(255,255,255,0.5);
-    }
-    
-    .img_preview {
-      position: fixed;
-      top:0;
-      right:0;
-      overflow:hidden;
-    }
-    
-    .img_preview img{
+      .cursor {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .img_preview {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        overflow: hidden;
+      }
+
+      .img_preview img {
         position: absolute;
       }
-    `
-  ]
+    `,
+  ],
 })
-export class NGXImgZoomViewerComponent implements OnInit {
-  host: HTMLElement; // Access for Host Element
-  image!: HTMLImageElement; // Image Element
-  cursor!: HTMLDivElement; // Cursor Element
-  img_preview!: HTMLDivElement; // Image Preview Element
+export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
+  private host: HTMLElement; // Access for Host Element
+  private image!: HTMLImageElement; // Image Element
+  private cursor!: HTMLDivElement; // Cursor Element
+  private img_preview!: HTMLDivElement; // Image Preview Element
 
-  @Input() set config(configValue: ZoomviewerConfig) {
-    this.defaultConfigs.imgHeight =
-      configValue?.imgHeight ?? this.defaultConfigs.imgHeight;
-
-    this.defaultConfigs.megnification =
-      configValue?.megnification ?? this.defaultConfigs.megnification;
-
-    this.defaultConfigs.priviewBoxSize.height =
-      configValue?.priviewBoxSize?.height ??
-      this.defaultConfigs.priviewBoxSize.height;
-
-    this.defaultConfigs.priviewBoxSize.width =
-      configValue?.priviewBoxSize?.width ??
-      this.defaultConfigs.priviewBoxSize.width;
-  }
+  @Input() config?: ZoomviewerConfig;
   @Input() set src(srcValue: string) {
     if (typeof srcValue === 'string') {
-      this.host.innerHTML = '';
-      this.image = this.renderer.createElement('img');
-      this.renderer.setAttribute(this.image, 'src', srcValue);
-      this.renderer.addClass(this.image, 'main_image');
-      this.renderer.setStyle(
-        this.image,
-        'height',
-        this.defaultConfigs.imgHeight + 'px'
-      );
-      this.renderer.appendChild(this.host, this.image);
       this._src = srcValue;
-
+      this.createImage();
     } else {
       console.error(
         'src must be of type string, current type found ' + typeof srcValue
@@ -99,31 +82,43 @@ export class NGXImgZoomViewerComponent implements OnInit {
   private cursorPosition: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor(private el: ElementRef, private renderer: Renderer2) {
-
     this.host = this.renderer.createElement('div');
     this.renderer.addClass(this.host, 'image_container');
-    this.renderer.appendChild(el.nativeElement,this.host); // assigning host
+    this.renderer.appendChild(el.nativeElement, this.host); // assigning host
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.defaultConfigs.imgHeight =
+      this.config?.imgHeight ?? this.defaultConfigs.imgHeight;
+
+    this.defaultConfigs.megnification =
+      this.config?.megnification ?? this.defaultConfigs.megnification;
+
+    this.defaultConfigs.priviewBoxSize.height =
+      this.config?.priviewBoxSize?.height ??
+      this.defaultConfigs.priviewBoxSize.height;
+
+    this.createImage();
   }
 
   ngOnInit(): void {
     if (!this._src) console.error('unable to read src attribute');
-    this.cursorSize.height =
-      this.defaultConfigs.priviewBoxSize.height /
-      this.defaultConfigs.megnification;
-
-    this.cursorSize.width =
-      this.defaultConfigs.priviewBoxSize.width /
-      this.defaultConfigs.megnification;
   }
 
   @HostListener('mouseleave', ['$event'])
   private onMouseLeave(e: MouseEvent) {
+    if(this.cursorSize.width < 50) return
     this.renderer.removeChild(this.host, this.cursor);
     this.renderer.removeChild(this.host, this.img_preview);
   }
 
   @HostListener('mouseenter', ['$event'])
   private onMouseEnter(e: MouseEvent) {
+    this.checkwidth();
+    if(this.cursorSize.width < 50) return
+    if (this.host.children.length > 1) {
+      this.onMouseLeave(e);
+    }
     this.cursor = this.renderer.createElement('div');
     this.renderer.addClass(this.cursor, 'cursor');
     this.renderer.setStyle(
@@ -151,6 +146,7 @@ export class NGXImgZoomViewerComponent implements OnInit {
   }
   @HostListener('mousemove', ['$event'])
   private onMouseMove(e: MouseEvent) {
+    if(this.cursorSize.width < 50) return
     this.setCursorPosition(e);
     this.setImgPreview(e);
   }
@@ -207,7 +203,57 @@ export class NGXImgZoomViewerComponent implements OnInit {
       'left',
       `-${this.cursorPosition.x * this.defaultConfigs.megnification}px`
     ); // changed zoomed image position based on cursor position
-    this.img_preview.innerHTML = ""
+    this.img_preview.innerHTML = '';
     this.renderer.appendChild(this.img_preview, zoomedImage); // added image into img_preview box
+  }
+
+  private createImage() {
+    console.log(this._src, this.defaultConfigs);
+    this.host.innerHTML = '';
+    this.image = this.renderer.createElement('img');
+    this.renderer.setAttribute(this.image, 'src', this._src);
+    this.renderer.addClass(this.image, 'main_image');
+    this.renderer.setStyle(
+      this.image,
+      'height',
+      this.defaultConfigs.imgHeight + 'px'
+    );
+    this.renderer.appendChild(this.host, this.image);
+  }
+
+  private checkwidth() {
+    const def =
+      this.image.x +
+      this.image.offsetWidth +
+      this.defaultConfigs.priviewBoxSize.width +
+      10 -
+      window.innerWidth +
+      10;
+
+    if (def >= 0) {
+      this.defaultConfigs.priviewBoxSize.width =
+        this.defaultConfigs.priviewBoxSize.width - def;
+    } else {
+      const def2 =
+        this.image.x +
+        this.image.offsetWidth +
+        this.defaultConfigs.priviewBoxSize.height +
+        10 -
+        window.innerWidth + 10;
+      if (def2 >= 0)
+        this.defaultConfigs.priviewBoxSize.width =
+          this.defaultConfigs.priviewBoxSize.height - def2;
+      else
+        this.defaultConfigs.priviewBoxSize.width =
+          this.defaultConfigs.priviewBoxSize.height;
+    }
+
+    this.cursorSize.height =
+      this.defaultConfigs.priviewBoxSize.height /
+      this.defaultConfigs.megnification;
+
+    this.cursorSize.width =
+      this.defaultConfigs.priviewBoxSize.width /
+      this.defaultConfigs.megnification;
   }
 }
