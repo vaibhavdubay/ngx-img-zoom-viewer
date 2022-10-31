@@ -27,6 +27,10 @@ export interface ZoomviewerConfig {
         display: inline-block;
       }
 
+      .image_container img {
+        width:100%;
+      }
+
       .cursor {
         position: absolute;
         background-color: rgba(255, 255, 255, 0.5);
@@ -34,6 +38,7 @@ export interface ZoomviewerConfig {
 
       .img_preview {
         position: fixed;
+        z-index: 1000;
         top: 10px;
         right: 10px;
         overflow: hidden;
@@ -62,6 +67,12 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
       );
     }
   }
+
+  private providedPreviewBox: {
+    height: number;
+    width: number;
+  } = { height: 350, width: 350 };
+
 
   private defaultConfigs = {
     imgHeight: 500,
@@ -98,6 +109,13 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
       this.config?.priviewBoxSize?.height ??
       this.defaultConfigs.priviewBoxSize.height;
 
+      if(this.defaultConfigs.priviewBoxSize.height + 20 > window.innerHeight){
+          this.defaultConfigs.priviewBoxSize.height = window.innerHeight-20
+      }
+
+    this.defaultConfigs.priviewBoxSize.width =
+      this.defaultConfigs.priviewBoxSize.height;
+    this.providedPreviewBox = { ...this.defaultConfigs.priviewBoxSize}
     this.createImage();
   }
 
@@ -107,7 +125,7 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
 
   @HostListener('mouseleave', ['$event'])
   private onMouseLeave(e: MouseEvent) {
-    if(this.cursorSize.width < 50 ) return
+    if (this.cursorSize.width < 50 && this.cursorSize.height > 50) return;
     this.renderer.removeChild(this.host, this.cursor);
     this.renderer.removeChild(this.host, this.img_preview);
   }
@@ -115,7 +133,7 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
   @HostListener('mouseenter', ['$event'])
   private onMouseEnter(e: MouseEvent) {
     this.checkwidth();
-    if(this.cursorSize.width < 50) return
+    if (this.cursorSize.width < 50 && this.cursorSize.height > 50) return;
     if (this.host.children.length > 1) {
       this.onMouseLeave(e);
     }
@@ -146,20 +164,21 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
   }
   @HostListener('mousemove', ['$event'])
   private onMouseMove(e: MouseEvent) {
-    if(this.cursorSize.width < 50) return
+    if (this.cursorSize.width < 50 && this.cursorSize.height > 50) return;
     this.setCursorPosition(e);
     this.setImgPreview(e);
   }
   private setCursorPosition(e: MouseEvent) {
     /* handling Left & top position for cursor box */
+
     let cursorPosition = {
       x:
-        e.pageX - this.cursorSize?.width / 2 >= 0 // checking if cursor box left is less then 0
-          ? e.pageX - this.cursorSize?.width / 2
+        e.pageX - this.cursorSize?.width / 2 - this.image.x >= 0 // checking if cursor box left is less then 0
+          ? e.pageX - this.cursorSize?.width / 2 - this.image.x
           : 0, // making sure if it is then only take 0 not negative value
       y:
-        e.pageY - this.cursorSize?.height / 2 >= 0 // checking if cursor box top is less then 0
-          ? e.pageY - this.cursorSize?.height / 2
+        e.pageY - this.cursorSize?.height / 2 - this.image.y >= 0 // checking if cursor box top is less then 0
+          ? e.pageY - this.cursorSize?.height / 2 - this.image.y
           : 0, // making sure if it is then only take 0 not negative value
     };
 
@@ -198,7 +217,7 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
       'top',
       `-${this.cursorPosition.y * this.defaultConfigs.megnification}px`
     ); // changed zoomed image position based on cursor position
-    this.renderer.setStyle(
+    this.renderer.setStyle( 
       zoomedImage,
       'left',
       `-${this.cursorPosition.x * this.defaultConfigs.megnification}px`
@@ -214,37 +233,24 @@ export class NGXImgZoomViewerComponent implements OnInit, OnChanges {
     this.renderer.addClass(this.image, 'main_image');
     this.renderer.setStyle(
       this.image,
-      'height',
+      'max-height',
       this.defaultConfigs.imgHeight + 'px'
     );
     this.renderer.appendChild(this.host, this.image);
   }
 
   private checkwidth() {
+    this.defaultConfigs.priviewBoxSize.width = this.providedPreviewBox.width
     const def =
       this.image.x +
-      this.image.offsetWidth +
+      this.image.width +
       this.defaultConfigs.priviewBoxSize.width +
-      10 -
-      window.innerWidth +
-      10;
+      20 -
+      window.innerWidth;
 
     if (def >= 0) {
       this.defaultConfigs.priviewBoxSize.width =
-        this.defaultConfigs.priviewBoxSize.width - def;
-    } else {
-      const def2 =
-        this.image.x +
-        this.image.offsetWidth +
-        this.defaultConfigs.priviewBoxSize.height +
-        10 -
-        window.innerWidth + 10;
-      if (def2 >= 0)
-        this.defaultConfigs.priviewBoxSize.width =
-          this.defaultConfigs.priviewBoxSize.height - def2;
-      else
-        this.defaultConfigs.priviewBoxSize.width =
-          this.defaultConfigs.priviewBoxSize.height;
+        this.defaultConfigs.priviewBoxSize.width - def - 30;
     }
 
     this.cursorSize.height =
