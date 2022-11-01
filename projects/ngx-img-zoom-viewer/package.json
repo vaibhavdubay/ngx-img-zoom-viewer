@@ -1,9 +1,9 @@
 {
   "name": "ngx-img-zoom-viewer",
-  "version": "0.14.02",
+  "version": "0.13.01",
   "peerDependencies": {
-    "@angular/common": "^14.2.0",
-    "@angular/core": "^14.2.0"
+    "@angular/core": "~13.1.0",
+    "@angular/common": "~13.1.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
